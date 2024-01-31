@@ -4,6 +4,9 @@ from src.data import get_train_dataset, get_target, train_test_split
 from src.preprocessing import preprocess
 from src.model import get_model, evaluate
 from src.schemas import TaxiColumn
+from src.features import registry
+
+from spice import Generator
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +20,13 @@ def main():
     train_target = target.loc[train_data.index]
     test_target = target.loc[test_data.index]
 
-    feature_columns = [
-        TaxiColumn.PICKUP_LAT,
-        TaxiColumn.PICKUP_LON,
-        TaxiColumn.DROPOFF_LAT,
-        TaxiColumn.DROPOFF_LON,
-    ]
-    train_features = train_data.loc[:, feature_columns]
-    test_features = test_data.loc[:, feature_columns]
+    feature_generator = Generator(
+        registry=registry,
+        features=['pickup_hour', 'pickup_weekday']
+    )
+
+    train_features = feature_generator.fit_transform(train_data, tags={'dataset': 'train'}).to_pandas()
+    test_features = feature_generator.transform(test_data, tags={'dataset': 'test'}).to_pandas()
 
     logger.info("Training model...")
     model = get_model().fit(train_features, train_target)

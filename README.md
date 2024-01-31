@@ -8,7 +8,7 @@
 
 1. Create a virtual env **with Python >= 3.8**, and activate
     ```bash
-    python -m venv .venv
+    python -m .venv .venv
     source .venv/bin/activate
     ```
 
